@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">PowerhouseApp</string>
+    <string name="capture_label">Capture</string>
+    <string name="permission_granted">Permission granted, launching cameraX</string>
+    <string name="permission_denied">Permission request denied</string>
+
+</resources>
