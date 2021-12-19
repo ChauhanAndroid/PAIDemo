@@ -1,1 +1,4 @@
 # PAIDemo
+Parallley uploading of Images using retrofit library.
+Project is using MVVM + Clean Architecture.
+Jetpack libraries used.
