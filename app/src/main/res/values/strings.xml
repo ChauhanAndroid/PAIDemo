@@ -3,5 +3,8 @@
     <string name="capture_label">Capture</string>
     <string name="permission_granted">Permission granted, launching cameraX</string>
     <string name="permission_denied">Permission request denied</string>
-
+    <string name="depth_label">Depth Finder</string>
+    <string name="show_depth" translatable="false">Show Depth</string>
+    <string name="hide_depth" translatable="false">Hide Depth</string>
+    <string name="depth_not_available" translatable="false">Depth Not Available</string>
 </resources>

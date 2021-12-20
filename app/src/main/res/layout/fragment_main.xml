@@ -29,4 +29,16 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_take_depth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/padding_text_size"
+        android:paddingRight="@dimen/padding_text_size"
+        android:text="@string/depth_label"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"
+        app:layout_constraintRight_toRightOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

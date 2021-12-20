@@ -2,9 +2,9 @@ package com.app.powerhouseapp.presentation.main.fragment
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -23,25 +23,17 @@ import com.app.powerhouseapp.R
 import com.app.powerhouseapp.databinding.FragmentMainBinding
 import com.app.powerhouseapp.domain.utils.Constants.Companion.FILENAME_FORMAT
 import com.app.powerhouseapp.domain.utils.Constants.Companion.PHOTO_EXTENSION
+import com.app.powerhouseapp.presentation.depth.DepthFinderActivity
 import com.app.powerhouseapp.presentation.main.viewmodel.MainViewModel
 import com.app.powerhouseapp.presentation.utils.autoCleared
-import com.google.ar.core.ArCoreApk
-import com.google.ar.core.ArCoreApk.*
-import com.google.ar.core.Config
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-import com.google.ar.core.Session
-import com.google.ar.core.exceptions.CameraNotAvailableException
-import com.google.ar.core.exceptions.NotYetAvailableException
-import com.google.ar.core.exceptions.UnavailableException
-import javax.microedition.khronos.egl.EGLConfig
-import javax.microedition.khronos.opengles.GL10
 
 
 @AndroidEntryPoint
-class CaptureImageFragment : Fragment(), GLSurfaceView.Renderer {
+class CaptureImageFragment : Fragment(){
 
     companion object {
         const val TAG = "CaptureFragment"
@@ -96,6 +88,14 @@ class CaptureImageFragment : Fragment(), GLSurfaceView.Renderer {
                 takePhoto()
             }
         }
+
+        captureFragmentBinding.btnTakeDepth.run {
+            setOnClickListener {
+                val intent = Intent(requireContext(), DepthFinderActivity::class.java)
+                startActivity(intent)
+            }
+        }
+
         callConfigApi()
         outputDirectory = getOutputDirectory()
     }
@@ -115,6 +115,7 @@ class CaptureImageFragment : Fragment(), GLSurfaceView.Renderer {
         viewModel.responseConfig.observe(viewLifecycleOwner, { result ->
             if (result.isLoading) {
                Toast.makeText(requireContext(),"Configuring...",Toast.LENGTH_SHORT).show()
+                captureFragmentBinding.btnTakeDepth.visibility = View.VISIBLE
             } else if (result.success.isNotEmpty()) {
                 permissionChecksAndStart()
             } else {
@@ -255,75 +256,4 @@ class CaptureImageFragment : Fragment(), GLSurfaceView.Renderer {
         }
     }
 
-
-    private lateinit var session : Session
-
-    fun depthInit(){
-        session = Session(requireContext())
-
-        val config = Config(session)
-
-        val isDepthSupported = session.isDepthModeSupported(Config.DepthMode.AUTOMATIC)
-        if (isDepthSupported) {
-            config.depthMode = Config.DepthMode.AUTOMATIC
-        }
-        session.configure(config)
-
-        try {
-            session.resume()
-        } catch (e: CameraNotAvailableException) {
-            Log.e("CameraNAException",e.localizedMessage)
-            return
-        }
-    }
-
-    // Verify that ARCore is installed and using the current version.
-    fun isARCoreSupportedAndUpToDate(): Boolean {
-        return when (getInstance().checkAvailability(requireContext())) {
-            Availability.SUPPORTED_INSTALLED -> true
-            Availability.SUPPORTED_APK_TOO_OLD, Availability.SUPPORTED_NOT_INSTALLED -> {
-                try {
-                    // Request ARCore installation or update if needed.
-                    when (getInstance().requestInstall(requireActivity(), true)) {
-                        InstallStatus.INSTALL_REQUESTED -> {
-                            Log.i(TAG, "ARCore installation requested.")
-                            false
-                        }
-                        InstallStatus.INSTALLED -> true
-                    }
-                } catch (e: UnavailableException) {
-                    Log.e(TAG, "ARCore not installed", e)
-                    false
-                }
-            }
-
-            Availability.UNSUPPORTED_DEVICE_NOT_CAPABLE ->
-                // This device is not supported for AR.
-                false
-            else -> {false}
-        }
-    }
-
-    override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-    }
-
-    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-    }
-
-    override fun onDrawFrame(gl: GL10?) {
-
-        // Retrieve the depth image for the current frame, if available.
-        try {
-            session.update().acquireRawDepthImage().use { depthImage ->
-                // Use the depth image here.
-                Log.e("depthImage",depthImage.toString())
-            }
-        } catch (e: NotYetAvailableException) {
-            // This means that depth data is not available yet.
-            // Depth data will not be available if there are no tracked
-            // feature points. This can happen when there is no motion, or when the
-            // camera loses its ability to track objects in the surrounding
-            // environment.
-        }
-    }
 }
